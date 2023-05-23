@@ -1,3 +1,2 @@
 /node_modules
-/src/config/dbConfig.js
-/src/Components/raffle/raffle.js
+.env
