@@ -1,50 +1,68 @@
 const Users = require('../models/UserData');
+const Tables = require('../models/Table');
 
 module.exports = {
+    async userCreate(request, response){
+        const { id, name, email } = request.body;
 
-    async read(request, response){
-        const userList = await Users.find();
-        return response.json(userList);
-    },
-
-    async create(request, response){
-        const { name, email } = request.body;
-
-        if(!name || !email){
+        if(!id){
+            return response.status(400).json({error: "Tabela não encontrada"})
+        } else if(name || !email){
             return response.status(400).json({error: "Nome/Email não informado."})
         }
 
-        const userCreated = await Users.create({
+        const Tables = await Tables.findById({_id: id});
+        Tables.users.push({
             name,
             email,
             gift: ''
         });
-        return response.json(userCreated);
+        Tables.save((err, result) => {
+            if (err) {
+                return response.status(400).json({error: "Erro ao criar usuário."});
+            } 
+        });
+        return response.json({message: 'Usuário criado com sucesso'});
     },
 
-    async update(request, response){
+    async userUpdate(request, response){
+        const { table, user, name, email } = request.body;
+        Tables.updateOne(
+            { _id: table, 'users._id': user },
+            { $set: { 'users.$.name': name, 'users.$.email': email } },
+            (err, result) => {
+              if (err) {
+                return response.status(404).json('Erro ao excluir usuário:', err)
+              } else if (result.modifiedCount === 0) {
+                return response.status(400).json('Usuário não encontrado')
+              } else{
+                response.json({message: 'Usuário alterado com sucesso'});
+              }
+            }
+          );
+    },
+
+    async userDelete(request, response){
+        const { table, user } = request.body;
+        Tables.updateOne(
+            { _id: table },
+            { $pull: { users: { _id: user } } },
+            (err, result) => {
+              if (err) {
+                return response.status(404).json('Erro ao excluir usuário:', err)
+              } else if (result.modifiedCount === 0) {
+                return response.status(400).json('Usuário não encontrado')
+              } else{
+                response.json({message: 'Usuário excluído com sucesso'});
+              }
+            }
+          );
+    },
+
+    async userShuffle(request, response){
         const { id } = request.params;
-        const { name, email } = request.body;
-        const userUpdated = await Users.findOne({ _id: id});
-        if(userUpdated){
-            userUpdated.name = name;
-            userUpdated.email = email;
-            await userUpdated.save();
-        }
-
-        return response.json(userUpdated);
-    },
-
-    async delete(request, response){
-        const { id } = request.params;
-        const userDeleted = await Users.findOneAndDelete({ _id: id});
-        if(!userDeleted){
-            return response.status(404).json({error: "Usuário não encontrado."});
-        }
-        return response.json(userDeleted);
-    },
-    async raffle(resquest, response){
-        const userList = await Users.find();
+        const table = await Tables.find({_id: id});
+        const userList = table.users;
         var userModif = userList;
         var objects = [];
         var num, userRuffle;
@@ -74,5 +92,24 @@ module.exports = {
             userUpdated.save();
         }
         return response.json(userList);
+    },
+
+    async createTable(request, response){
+        const { name } = request.params;
+
+        if(!name ){
+            return response.status(400).json({error: "Nome não informado."})
+        }
+
+        const tableCreated = await Tables.create({
+            name
+        });
+        return response.json({message: 'Tabela criada com sucesso'});
+    },
+
+    async readTable(request, response){
+        const tableList = await Tables.find();
+        
+        return response.json(tableList);
     }
 }

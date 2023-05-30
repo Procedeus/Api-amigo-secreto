@@ -3,11 +3,12 @@ const routes = express.Router();
 
 const UserController = require('./controllers/UserController');
 
-routes.post('/users', UserController.create);
-routes.get('/users', UserController.read);
-routes.delete('/users/:id', UserController.delete);
-routes.post('/update/:id', UserController.update);
+routes.post('/tables', UserController.createTable);
+routes.get('/tables', UserController.readTable);
 
-routes.post('/raffle', UserController.raffle);
+routes.post('/users', UserController.userCreate);
+routes.post('/update', UserController.userUpdate);
+routes.delete('/users', UserController.userDelete);
+routes.post('/shuffle', UserController.userShuffle);
 
 module.exports = routes;
