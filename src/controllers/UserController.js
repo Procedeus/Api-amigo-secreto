@@ -1,23 +1,21 @@
-const Users = require('../models/UserData');
 const Tables = require('../models/Table');
 
 module.exports = {
     async userCreate(request, response){
         const { id, name, email } = request.body;
-
         if(!id){
             return response.status(400).json({error: "Tabela não encontrada"})
-        } else if(name || !email){
+        } else if(!name || !email){
             return response.status(400).json({error: "Nome/Email não informado."})
         }
 
-        const Tables = await Tables.findById({_id: id});
-        Tables.users.push({
+        const table = await Tables.findById({ _id: id });
+        table.users.push({
             name,
             email,
             gift: ''
         });
-        Tables.save((err, result) => {
+        table.save((err, result) => {
             if (err) {
                 return response.status(400).json({error: "Erro ao criar usuário."});
             } 

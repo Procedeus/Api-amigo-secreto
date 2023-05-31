@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const TableSchema = new mongoose.Schema({
     name: String,
     users: [{
-        nome: String,
+        name: String,
         email: String,
         gift: String
       }]
