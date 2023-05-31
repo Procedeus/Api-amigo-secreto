@@ -25,14 +25,20 @@ module.exports = {
 
     async userUpdate(request, response){
         const { table, user, name, email } = request.body;
+
+        if(!table || !user){
+            return response.status(400).json('Usuário não encontrado');
+        } else if(!name || !email){
+            return response.status(400).json('Informações vazias');
+        }
         Tables.updateOne(
             { _id: table, 'users._id': user },
             { $set: { 'users.$.name': name, 'users.$.email': email } },
             (err, result) => {
               if (err) {
-                return response.status(404).json('Erro ao excluir usuário:', err)
+                return response.status(404).json('Erro ao excluir usuário:', err);
               } else if (result.modifiedCount === 0) {
-                return response.status(400).json('Usuário não encontrado')
+                return response.status(400).json('Usuário não encontrado');
               } else{
                 response.json({message: 'Usuário alterado com sucesso'});
               }
@@ -47,9 +53,9 @@ module.exports = {
             { $pull: { users: { _id: user } } },
             (err, result) => {
               if (err) {
-                return response.status(404).json('Erro ao excluir usuário:', err)
+                return response.status(404).json('Erro ao excluir usuário:', err);
               } else if (result.modifiedCount === 0) {
-                return response.status(400).json('Usuário não encontrado')
+                return response.status(400).json('Usuário não encontrado');
               } else{
                 response.json({message: 'Usuário excluído com sucesso'});
               }
@@ -57,43 +63,48 @@ module.exports = {
           );
     },
 
-    async userShuffle(request, response){
-        const { id } = request.params;
-        const table = await Tables.find({_id: id});
-        const userList = table.users;
-        var userModif = userList;
-        var objects = [];
-        var num, userRuffle;
-        for(var i = userModif.length; i > 0; i--){
+    async userShuffle(request, response) {
+        try {
+            const { tableId } = request.body;
+            const table = await Tables.findById(tableId);
+            const userList = table.users;
+            const userModif = [...userList];
+            const objects = [];
+            let num, userShuffle;
+        
+            for (let i = userModif.length; i > 0; i--) {
             num = Math.floor(Math.random() * i);
-            userRuffle = userModif.at(num);
-            userModif = userModif.filter(item => item.name !== userRuffle.name);
-            objects.push(userRuffle);
-        }
-        for(var i = 0; i < userList.length; i++){
-            if(objects[i].name == userList[i].name){
-                if(i < userList.length - 1){
-                    userModif = objects[i + 1];
-                    objects[i + 1]  = objects[i];
-                    objects[i] = userModif; 
-                }
-                else if(i == userList.length - 1){
-                    userModif = objects[i - 1];
-                    objects[i - 1]  = objects[i];
-                    objects[i] = userModif;
+            userShuffle = userModif[num];
+            userModif.splice(num, 1);
+            objects.push(userShuffle);
+            }
+        
+            for (let i = 0; i < userList.length; i++) {
+                if (objects[i].name === userList[i].name) {
+                    if (i < userList.length - 1) {
+                    [objects[i], objects[i + 1]] = [objects[i + 1], objects[i]];
+                    } else if (i === userList.length - 1) {
+                    [objects[i], objects[i - 1]] = [objects[i - 1], objects[i]];
+                    }
                 }
             }
+        
+            for (let i = 0; i < userList.length; i++) {
+                const user = userList[i];
+                user.gift = objects[i].name;
+            }
+            table.markModified('users');
+            await table.save();
+            
+            return response.json( userList );
+
+        } catch (error) {
+            return response.status(500).json({ error: 'Internal Server Error' });
         }
-        for(var i = 0; i < userList.length; i++){
-            const userUpdated = userList[i];
-            userUpdated.gift = objects[i].name;
-            userUpdated.save();
-        }
-        return response.json(userList);
     },
 
     async createTable(request, response){
-        const { name } = request.params;
+        const { name } = request.body;
 
         if(!name ){
             return response.status(400).json({error: "Nome não informado."})
