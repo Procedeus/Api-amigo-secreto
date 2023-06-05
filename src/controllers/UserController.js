@@ -15,12 +15,12 @@ module.exports = {
             email,
             gift: ''
         });
-        table.save((err, result) => {
+        table.save((err) => {
             if (err) {
                 return response.status(400).json({error: "Erro ao criar usuário."});
             } 
         });
-        return response.json({message: 'Usuário criado com sucesso'});
+        return response.json(table);
     },
 
     async userUpdate(request, response){
@@ -31,16 +31,17 @@ module.exports = {
         } else if(!name || !email){
             return response.status(400).json('Informações vazias');
         }
-        Tables.updateOne(
+        Tables.findOneAndUpdate(
             { _id: table, 'users._id': user },
             { $set: { 'users.$.name': name, 'users.$.email': email } },
-            (err, result) => {
+            { new: true },
+            (err, updatedTable) => {
               if (err) {
                 return response.status(404).json('Erro ao excluir usuário:', err);
               } else if (result.modifiedCount === 0) {
                 return response.status(400).json('Usuário não encontrado');
               } else{
-                response.json({message: 'Usuário alterado com sucesso'});
+                return response.json(updatedTable);
               }
             }
           );
@@ -48,16 +49,17 @@ module.exports = {
 
     async userDelete(request, response){
         const { table, user } = request.body;
-        Tables.updateOne(
+        Tables.findOneAndUpdate(
             { _id: table },
             { $pull: { users: { _id: user } } },
-            (err, result) => {
+            { new: true }, 
+            (err, updatedTable) => {
               if (err) {
                 return response.status(404).json('Erro ao excluir usuário:', err);
-              } else if (result.modifiedCount === 0) {
+              } else if (!updatedTable) {
                 return response.status(400).json('Usuário não encontrado');
-              } else{
-                response.json({message: 'Usuário excluído com sucesso'});
+              } else {
+                response.json(updatedTable);
               }
             }
           );
@@ -96,7 +98,7 @@ module.exports = {
             table.markModified('users');
             await table.save();
             
-            return response.json( userList );
+            return response.json( table );
 
         } catch (error) {
             return response.status(500).json({ error: 'Internal Server Error' });
@@ -113,7 +115,7 @@ module.exports = {
         const tableCreated = await Tables.create({
             name
         });
-        return response.json({message: 'Tabela criada com sucesso'});
+        return response.json(tableCreated);
     },
 
     async readTable(request, response){
