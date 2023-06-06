@@ -37,8 +37,8 @@ module.exports = {
             { new: true },
             (err, updatedTable) => {
               if (err) {
-                return response.status(404).json('Erro ao excluir usuário:', err);
-              } else if (result.modifiedCount === 0) {
+                return response.status(404).json('Erro ao alterar usuário:', err);
+              } else if (!updatedTable) {
                 return response.status(400).json('Usuário não encontrado');
               } else{
                 return response.json(updatedTable);
@@ -122,6 +122,24 @@ module.exports = {
         return response.json(tableCreated);
     },
 
+    async updateTable(request, response){
+        const { table, name } = request.body;
+        Tables.findOneAndUpdate(
+            { _id: table},
+            { $set: { name: name} },
+            { new: true },
+            (err, updatedTable) => {
+              if (err) {
+                return response.status(404).json('Erro ao alterar tabela:', err);
+              } else if (!updatedTable) {
+                return response.status(400).json('Tabela não encontrada');
+              } else{
+                return response.json(updatedTable);
+              }
+            }
+          );
+    },
+
     async deleteTable(request, response){
         const { table } = request.body;
         const result = await Tables.deleteOne({ _id: table });
@@ -131,5 +149,5 @@ module.exports = {
         else{
             return response.json({message: 'Tabela deletada com sucesso!'});
         }
-    },
+    }
 }

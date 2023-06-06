@@ -6,6 +6,7 @@ const UserController = require('./controllers/UserController');
 routes.get('/tables', UserController.readTable);
 routes.post('/tables', UserController.createTable);
 routes.delete('/tables', UserController.deleteTable);
+routes.post('/tablesU', UserController.updateTable);
 
 routes.post('/users', UserController.userCreate);
 routes.delete('/users', UserController.userDelete);
