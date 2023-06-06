@@ -139,15 +139,17 @@ module.exports = {
             }
           );
     },
-
+    
     async deleteTable(request, response){
-        const { table } = request.body;
-        const result = await Tables.deleteOne({ _id: table });
-        if(result.deletedCount === 0){
-            return response.status(400).json({error: 'Tabela não encontrada'});
+      const { table } = request.body;
+      Tables.findOneAndDelete({ _id: table }, (err, deletedTable) => {
+        if (err) {
+          return response.status(404).json('Erro ao excluir tabela:', err);
+        } else if (!deletedTable) {
+          return response.status(400).json('Tabela não encontrada');
+        } else {
+          return response.json(deletedTable);
         }
-        else{
-            return response.json({message: 'Tabela deletada com sucesso!'});
-        }
+      });
     }
 }
