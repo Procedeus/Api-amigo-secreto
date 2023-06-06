@@ -104,7 +104,11 @@ module.exports = {
             return response.status(500).json({ error: 'Internal Server Error' });
         }
     },
-
+    async readTable(request, response){
+        const tableList = await Tables.find();
+        
+        return response.json(tableList);
+    },
     async createTable(request, response){
         const { name } = request.body;
 
@@ -118,9 +122,14 @@ module.exports = {
         return response.json(tableCreated);
     },
 
-    async readTable(request, response){
-        const tableList = await Tables.find();
-        
-        return response.json(tableList);
-    }
+    async deleteTable(request, response){
+        const { table } = request.body;
+        const result = await Tables.deleteOne({ _id: table });
+        if(result.deletedCount === 0){
+            return response.status(400).json({error: 'Tabela não encontrada'});
+        }
+        else{
+            return response.json({message: 'Tabela deletada com sucesso!'});
+        }
+    },
 }
