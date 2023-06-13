@@ -1,4 +1,5 @@
 const Tables = require('../models/Table');
+const TableUsers = require('../models/TableUser');
 
 module.exports = {
     async userCreate(request, response){
@@ -9,67 +10,51 @@ module.exports = {
             return response.status(400).json({error: "Nome/Email não informado."})
         }
 
-        const table = await Tables.findById({ _id: id });
-        table.users.push({
-            name,
-            email,
-            gift: ''
+        const userCreated = await TableUsers.create({
+          tableId: id,
+          name,
+          email,
+          gift: ''
         });
-        table.save((err) => {
+        userCreated.save((err) => {
             if (err) {
                 return response.status(400).json({error: "Erro ao criar usuário."});
             } 
         });
-        return response.json(table);
+        return response.json(userCreated);
     },
 
     async userUpdate(request, response){
-        const { table, user, name, email } = request.body;
+        const { user, name, email } = request.body;
 
-        if(!table || !user){
+        if(!user){
             return response.status(400).json('Usuário não encontrado');
         } else if(!name || !email){
             return response.status(400).json('Informações vazias');
         }
-        Tables.findOneAndUpdate(
-            { _id: table, 'users._id': user },
-            { $set: { 'users.$.name': name, 'users.$.email': email } },
-            { new: true },
-            (err, updatedTable) => {
-              if (err) {
-                return response.status(404).json('Erro ao alterar usuário:', err);
-              } else if (!updatedTable) {
-                return response.status(400).json('Usuário não encontrado');
-              } else{
-                return response.json(updatedTable);
-              }
-            }
-          );
+        const userUpdated = await TableUsers.findOne({ _id: user});
+        if(userUpdated){
+            userUpdated.name = name;
+            userUpdated.email = email;
+            await userUpdated.save();
+        }
+
+        return response.json(userUpdated);
     },
 
     async userDelete(request, response){
-        const { table, user } = request.body;
-        Tables.findOneAndUpdate(
-            { _id: table },
-            { $pull: { users: { _id: user } } },
-            { new: true }, 
-            (err, updatedTable) => {
-              if (err) {
-                return response.status(404).json('Erro ao excluir usuário:', err);
-              } else if (!updatedTable) {
-                return response.status(400).json('Usuário não encontrado');
-              } else {
-                response.json(updatedTable);
-              }
-            }
-          );
+        const { user } = request.body;
+        const userDeleted = await TableUsers.findOneAndDelete({ _id: user});
+        if(!userDeleted){
+            return response.status(400).json({error: "Usuário não encontrado"});
+        }
+        return response.json(userDeleted);
     },
 
     async userShuffle(request, response) {
         try {
             const { tableId } = request.body;
-            const table = await Tables.findById(tableId);
-            const userList = table.users;
+            const userList = await TableUsers.find({ tableId });
             const userModif = [...userList];
             const objects = [];
             let num, userShuffle;
@@ -94,21 +79,34 @@ module.exports = {
             for (let i = 0; i < userList.length; i++) {
                 const user = userList[i];
                 user.gift = objects[i].name;
+                user.save();
             }
-            table.markModified('users');
-            await table.save();
             
-            return response.json( table );
+            
+            return response.json(userList);
 
         } catch (error) {
             return response.status(500).json({ error: 'Internal Server Error' });
         }
     },
-    async readTable(request, response){
+
+    async readTable(request, response) {
+      try {
         const tableList = await Tables.find();
-        
+    
+        const userListPromises = tableList.map(async table => {
+          const userList = await TableUsers.find({ tableId: table._id });
+          table.users = userList;
+        });
+    
+        await Promise.all(userListPromises);
+    
         return response.json(tableList);
+      } catch (error) {
+        return response.status(500).json({ error: 'Internal server error' });
+      }
     },
+
     async createTable(request, response){
         const { name } = request.body;
 
@@ -124,20 +122,19 @@ module.exports = {
 
     async updateTable(request, response){
         const { table, name } = request.body;
-        Tables.findOneAndUpdate(
-            { _id: table},
-            { $set: { name: name} },
-            { new: true },
-            (err, updatedTable) => {
-              if (err) {
-                return response.status(404).json('Erro ao alterar tabela:', err);
-              } else if (!updatedTable) {
-                return response.status(400).json('Tabela não encontrada');
-              } else{
-                return response.json(updatedTable);
-              }
-            }
-          );
+
+        if(!table){
+          return response.status(400).json({error: "Tabela não encontrada"})
+        } else if(!name){
+          return response.status(400).json({error: "Nome não informado."})
+        }
+
+        const tableUpdated = await Users.findOne({ _id: table});
+        if(tableUpdated){
+          tableUpdated.name = name;
+          tableUpdated.save();
+        }
+        return tableUpdated;
     },
     
     async deleteTable(request, response){
