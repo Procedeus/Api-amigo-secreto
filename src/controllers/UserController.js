@@ -129,12 +129,12 @@ module.exports = {
           return response.status(400).json({error: "Nome não informado."})
         }
 
-        const tableUpdated = await Users.findOne({ _id: table});
+        const tableUpdated = await Tables.findOne({ _id: table});
         if(tableUpdated){
           tableUpdated.name = name;
           tableUpdated.save();
         }
-        return tableUpdated;
+        return response.json(tableUpdated);
     },
     
     async deleteTable(request, response){
