@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-const TableSchema = new mongoose.Schema({
+const tableSchema = new mongoose.Schema({
     name: String,
     users: []
 });
 
-module.exports = mongoose.model('Tables', TableSchema);
+module.exports = mongoose.model('Tables', tableSchema);

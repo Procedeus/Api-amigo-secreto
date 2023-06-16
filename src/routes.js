@@ -1,16 +1,17 @@
 const express = require('express');
 const routes = express.Router();
 
-const UserController = require('./controllers/UserController');
+const TableController = require('./controllers/tableController');
+const userTableController = require('./controllers/userTableController');
 
-routes.get('/tables', UserController.readTable);
-routes.post('/tables', UserController.createTable);
-routes.delete('/tables', UserController.deleteTable);
-routes.post('/tablesU', UserController.updateTable);
+routes.get('/tables', TableController.readTable);
+routes.post('/tables', TableController.createTable);
+routes.delete('/tables', TableController.deleteTable);
+routes.post('/tablesU', TableController.updateTable);
 
-routes.post('/users', UserController.userCreate);
-routes.delete('/users', UserController.userDelete);
-routes.post('/update', UserController.userUpdate);
-routes.post('/shuffle', UserController.userShuffle);
+routes.post('/users', userTableController.userCreate);
+routes.delete('/users', userTableController.userDelete);
+routes.post('/update', userTableController.userUpdate);
+routes.post('/shuffle', userTableController.userShuffle);
 
 module.exports = routes;
