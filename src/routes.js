@@ -1,13 +1,17 @@
 const express = require('express');
 const routes = express.Router();
 
-const TableController = require('./controllers/tableController');
+const accountController = require('./controllers/accountController');
+const tableController = require('./controllers/tableController');
 const userTableController = require('./controllers/userTableController');
 
-routes.get('/tables', TableController.readTable);
-routes.post('/tables', TableController.createTable);
-routes.delete('/tables', TableController.deleteTable);
-routes.post('/tablesU', TableController.updateTable);
+routes.post('/login', accountController.login);
+routes.post('/signup', accountController.signup);
+
+routes.get('/tables', tableController.readTable);
+routes.post('/tables', tableController.createTable);
+routes.delete('/tables', tableController.deleteTable);
+routes.post('/tablesU', tableController.updateTable);
 
 routes.post('/users', userTableController.userCreate);
 routes.delete('/users', userTableController.userDelete);
