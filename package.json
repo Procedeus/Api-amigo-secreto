@@ -16,6 +16,7 @@
     "dotenv": "^16.0.3",
     "emailjs-com": "^3.2.0",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.0",
     "secreto": "github:Procedeus/Api-amigo-secreto"
   },
