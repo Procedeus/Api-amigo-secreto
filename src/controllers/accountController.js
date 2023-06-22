@@ -27,7 +27,7 @@ module.exports = {
     async signup(request, response){
         const { username, password } = request.body;
         if(!username || !password){
-            response.status(400).json({error: 'Usuários ou Senha não informados'});
+            return response.status(400).json({error: 'Usuários ou Senha não informados'});
         }
         const exist = await accounts.findOne({username: username});
         if(!exist){
@@ -39,13 +39,13 @@ module.exports = {
             return response.status(400).json({error: 'Username Existente.'});
         }
     },
-
+    
     verifyToken(req, res, next) {
         const token = req.headers.authorization?.split(' ')[1];
         if (!token) {
             return res.status(401).json({ error: 'Token não encontrado' });
         }
-        const secretKey = process.env.JWT_SECRETKEY;
+        const secretKey = process.env.JWT_SECRET_KEY;
         try {
           const decodedToken = jwt.verify(token, secretKey);
           req.decodedToken = decodedToken;
