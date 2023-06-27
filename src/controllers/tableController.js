@@ -58,7 +58,13 @@ module.exports = {
         } else if (!deletedTable) {
           return response.status(400).json('Tabela não encontrada');
         } else {
-          return response.json(deletedTable);
+          usersTable.deleteMany({tableId: table})
+          .then(() => {
+            return response.json(deletedTable);
+          })
+          .catch(error => {
+            return response.status(500).json({error: error});
+          });
         }
       });
     }
