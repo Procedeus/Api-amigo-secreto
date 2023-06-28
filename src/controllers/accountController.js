@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 function createToken(id){
     const secretKey = process.env.JWT_SECRET_KEY;
     const payload = {
-        userId: id
+        accountId: id
     };
     const token = jwt.sign(payload, secretKey, { expiresIn: '7d' });
     return token;
@@ -21,9 +21,10 @@ module.exports = {
         if(!account){
             return response.status(403).json({error: 'Usuário e/ou senha incorretos'})
         }
-        const token = createToken(account[0]?._id);
+        const token = createToken(account._id);
         return response.json(token);
     },
+
     async signup(request, response){
         const { username, password } = request.body;
         if(!username || !password){
@@ -48,7 +49,7 @@ module.exports = {
         const secretKey = process.env.JWT_SECRET_KEY;
         try {
           const decodedToken = jwt.verify(token, secretKey);
-          req.decodedToken = decodedToken;
+          req.accountId = decodedToken.accountId;
           next();
         } catch (error) {
           return res.status(400).json({ error: 'Token Invalido' });

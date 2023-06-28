@@ -9,13 +9,13 @@ routes.post('/login', accountController.login);
 routes.post('/signup', accountController.signup);
 
 routes.get('/tables', accountController.verifyToken, tableController.readTable);
-routes.post('/tables', tableController.createTable);
-routes.delete('/tables', tableController.deleteTable);
-routes.post('/tablesU', tableController.updateTable);
+routes.post('/tables', accountController.verifyToken, tableController.createTable);
+routes.delete('/tables',accountController.verifyToken, tableController.deleteTable);
+routes.post('/tablesU', accountController.verifyToken, tableController.updateTable);
 
-routes.post('/users', userTableController.userCreate);
-routes.delete('/users', userTableController.userDelete);
-routes.post('/update', userTableController.userUpdate);
-routes.post('/shuffle', userTableController.userShuffle);
+routes.post('/users', accountController.verifyToken, userTableController.userCreate);
+routes.delete('/users', accountController.verifyToken, userTableController.userDelete);
+routes.post('/update', accountController.verifyToken, userTableController.userUpdate);
+routes.post('/shuffle', accountController.verifyToken, userTableController.userShuffle);
 
 module.exports = routes;

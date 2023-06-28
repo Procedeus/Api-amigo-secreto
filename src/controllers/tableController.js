@@ -4,8 +4,9 @@ const usersTable = require('../models/userTable');
 module.exports = {
 
     async readTable(request, response) {
+      const accountId = request.accountId;
       try {
-        const tableList = await tables.find();
+        const tableList = await tables.find({accountId: accountId});
     
         const userListPromises = tableList.map(async table => {
           const userList = await usersTable.find({ tableId: table._id });
@@ -22,13 +23,15 @@ module.exports = {
 
     async createTable(request, response){
         const { name } = request.body;
+        const accountId = request.accountId;
 
         if(!name ){
             return response.status(400).json({error: "Nome não informado."})
         }
 
         const tableCreated = await tables.create({
-            name
+            name,
+            accountId
         });
         return response.json(tableCreated);
     },
