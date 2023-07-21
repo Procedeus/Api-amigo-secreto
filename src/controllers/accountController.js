@@ -17,6 +17,12 @@ module.exports = {
         if(!username || !password){
             return response.status(400).json({error: 'Usuários ou Senha não informados'});
         }
+        else if(username.length <= 4){
+            return response.status(400).json({error: 'Usuário tamanho insuficiente'});
+        }
+        else if(password.length <= 5){
+            return response.status(400).json({error: 'Senha tamanho insuficiente'});
+        }
         const account = await accounts.findOne({username: username, password: password});
         if(!account){
             return response.status(403).json({error: 'Usuário e/ou senha incorretos'})
@@ -29,6 +35,12 @@ module.exports = {
         const { username, password } = request.body;
         if(!username || !password){
             return response.status(400).json({error: 'Usuários ou Senha não informados'});
+        }
+        else if(username.length <= 4){
+            return response.status(400).json({error: 'Usuário tamanho insuficiente'});
+        }
+        else if(password.length <= 5){
+            return response.status(400).json({error: 'Senha tamanho insuficiente'});
         }
         const exist = await accounts.findOne({username: username});
         if(!exist){
