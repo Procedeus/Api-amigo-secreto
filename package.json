@@ -1,14 +1,11 @@
 {
-  "name": "secreto",
+  "name": "api-amigo-secreto",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "engines": {
-    "node": "18.x"
-  },
+  "main": "api/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "nodemon": "nodemon src/index.js",
+    "start": "node .",
+    "dev": "nodemon api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
