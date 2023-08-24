@@ -61,6 +61,10 @@ module.exports = {
                 return response.status(400).json('Tabela de Usuários não encontrada');
             }
             const userList = await usersTable.find({ tableId });
+            if(userList.length < 2){
+                return response.status(400).json('É necessário mais usuários.');
+            }
+
             const userModif = [...userList];
             const objects = [];
             let num, userShuffle;

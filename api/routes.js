@@ -17,6 +17,6 @@ routes.post('/tablesU', accountController.verifyToken, tableController.updateTab
 routes.post('/users', accountController.verifyToken, userTableController.userCreate);
 routes.delete('/users', accountController.verifyToken, userTableController.userDelete);
 routes.post('/update', accountController.verifyToken, userTableController.userUpdate);
-routes.post('/shuffle', accountController.verifyToken, userTableController.userShuffle);
+routes.post('/shuffle', userTableController.userShuffle);
 
 module.exports = routes;
